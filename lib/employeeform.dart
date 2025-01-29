@@ -18,6 +18,14 @@ class _EmployeeformState extends State<Employeeform>{
 
   String? _editingEmployeeId; // track the id of the employye being edited
 
+  @override
+  void initState(){
+    super.initState();
+    _appwriteService=AppwriteService();
+    _employees=[];
+    _loadEmployeeDetails();
+  }
+
   Future <void> _loadEmployeeDetails()async{
     try{
       final tasks=await _appwriteService.getEmployeeDetails();
@@ -33,6 +41,38 @@ class _EmployeeformState extends State<Employeeform>{
     final name=nameC.text;
     final age=ageC.text;
     final location=locationC.text;
+
+    if(name.isNotEmpty && age.isNotEmpty && location.isNotEmpty){
+      try{
+        if(_editingEmployeeId == null){
+          await _appwriteService.addEmployeeDetails(name, age, location);
+        }else{
+          await _appwriteService.updateEmployeeDetails(name, age, location,_editingEmployeeId!);
+        }
+        nameC.clear();
+        ageC.clear();
+        locationC.clear();
+        _editingEmployeeId = null;
+        _loadEmployeeDetails();
+      }catch(e){
+        print("error adding or Deleting task:$e");
+      }
+    }
+  }
+    Future<void> _deleteEmployeeDetails(String taskId)async{
+      try{
+        await _appwriteService.deleteEmployee(taskId);
+        _loadEmployeeDetails();
+      }catch(e){
+        print("error deleting task:$e");
+      }
+    }
+
+  void _editEmployeeDetails(Employee employee){
+    nameC.text = employee.name;
+    ageC.text=employee.age;
+    locationC.text=employee.location;
+    _editingEmployeeId=employee.id;
   }
 
   @override
@@ -42,6 +82,44 @@ class _EmployeeformState extends State<Employeeform>{
         title: Text("Employee Form"),
         centerTitle: true,
       ),
+
+      //
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: GridView.builder(gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2,mainAxisSpacing: 10,crossAxisSpacing: 10),
+        itemCount: _employees.length,
+        itemBuilder: (context,index){
+          final employer=_employees[index];
+          return Container(
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15),color: const Color.fromARGB(255, 183, 232, 255)),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Name: ${employer.name}",style: TextStyle(fontSize: 16,),),
+                  Text("Age: ${employer.age}",style: TextStyle(fontSize: 16,),),
+                  Text("Loacation: ${employer.location}",style: TextStyle(fontSize: 16,),),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(onPressed: (){
+                        _editEmployeeDetails(employer);
+                      }, icon: Icon(Icons.edit,color: Colors.blue,)),
+                      IconButton(onPressed: (){
+                        _deleteEmployeeDetails(employer.id);
+                      }, icon: Icon(Icons.delete,color: Colors.blue,))
+                    ],
+                  )
+                ],
+              ),
+            ),
+          );
+        }),
+      ),
+
+      //adding details button
       floatingActionButton: FloatingActionButton(
         onPressed: (){
           showModalBottomSheet(context: context, builder: (BuildContext context){
@@ -80,8 +158,11 @@ class _EmployeeformState extends State<Employeeform>{
                         backgroundColor: Colors.blue,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))
                       ),
-                    onPressed: (){},
-                    child: Text("Add",style: TextStyle(fontSize: 20,color: Colors.white),))
+                    onPressed: (){
+                      _addOrUpdateEmployeeDetails();
+                      Navigator.pop(context);
+                    },
+                    child: Text(_editingEmployeeId == null ? "Add" : "Update",style: TextStyle(fontSize: 20,color: Colors.white),))
                   ],
               
                 ),
