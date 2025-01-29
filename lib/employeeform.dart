@@ -49,11 +49,11 @@ class _EmployeeformState extends State<Employeeform>{
         }else{
           await _appwriteService.updateEmployeeDetails(name, age, location,_editingEmployeeId!);
         }
-        nameC.clear();
-        ageC.clear();
-        locationC.clear();
-        _editingEmployeeId = null;
-        _loadEmployeeDetails();
+          nameC.clear();
+          ageC.clear();
+          locationC.clear();
+          _editingEmployeeId == null;
+          _loadEmployeeDetails();
       }catch(e){
         print("error adding or Deleting task:$e");
       }
@@ -90,6 +90,7 @@ class _EmployeeformState extends State<Employeeform>{
         itemCount: _employees.length,
         itemBuilder: (context,index){
           final employer=_employees[index];
+          
           return Container(
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(15),color: const Color.fromARGB(255, 183, 232, 255)),
             child: Padding(
@@ -106,6 +107,11 @@ class _EmployeeformState extends State<Employeeform>{
                     children: [
                       IconButton(onPressed: (){
                         _editEmployeeDetails(employer);
+                        showModalBottomSheet(context: context, builder: (BuildContext context){
+            return _buildEmployeeForm();
+           
+          });
+
                       }, icon: Icon(Icons.edit,color: Colors.blue,)),
                       IconButton(onPressed: (){
                         _deleteEmployeeDetails(employer.id);
@@ -123,7 +129,16 @@ class _EmployeeformState extends State<Employeeform>{
       floatingActionButton: FloatingActionButton(
         onPressed: (){
           showModalBottomSheet(context: context, builder: (BuildContext context){
-            return Padding(
+            return _buildEmployeeForm();
+           
+          });
+        },
+        child: Icon(Icons.add,color: Colors.blue,),
+        ),
+    );
+  }
+  Widget _buildEmployeeForm(){
+     return Padding(
               padding: const EdgeInsets.all(10.0),
               child: Container(
                 height: 400,
@@ -168,10 +183,5 @@ class _EmployeeformState extends State<Employeeform>{
                 ),
               ),
             );
-          });
-        },
-        child: Icon(Icons.add,color: Colors.blue,),
-        ),
-    );
   }
 }
