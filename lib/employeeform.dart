@@ -1,3 +1,5 @@
+import 'package:appwrite_employee/appwrite.dart';
+import 'package:appwrite_employee/list.dart';
 import 'package:flutter/material.dart';
 
 class Employeeform extends StatefulWidget{
@@ -7,9 +9,31 @@ class Employeeform extends StatefulWidget{
 
 class _EmployeeformState extends State<Employeeform>{
 
-  TextEditingController name=TextEditingController();
-  TextEditingController age=TextEditingController();
-  TextEditingController location=TextEditingController();
+  late AppwriteService _appwriteService;
+  late List<Employee> _employees;
+
+  TextEditingController nameC=TextEditingController();
+  TextEditingController ageC=TextEditingController();
+  TextEditingController locationC=TextEditingController();
+
+  String? _editingEmployeeId; // track the id of the employye being edited
+
+  Future <void> _loadEmployeeDetails()async{
+    try{
+      final tasks=await _appwriteService.getEmployeeDetails();
+      setState(() {
+        _employees = tasks.map((e) => Employee.fromDocument(e)).toList();
+      });
+    }catch(e){
+      print("error loading tasks:$e");
+    }
+  }
+
+  Future<void> _addOrUpdateEmployeeDetails()async{
+    final name=nameC.text;
+    final age=ageC.text;
+    final location=locationC.text;
+  }
 
   @override
   Widget build(BuildContext context){
@@ -31,21 +55,21 @@ class _EmployeeformState extends State<Employeeform>{
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     TextField(
-                      controller: name,
+                      controller: nameC,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),),
                           labelText: "Name",labelStyle: TextStyle(fontSize: 20,color: Colors.blue),),
                     ),
                     TextField(
-                      controller: age,
+                      controller: ageC,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),),
                           labelText: "Age",labelStyle: TextStyle(fontSize: 20,color: Colors.blue),),
                     ),
                     TextField(
-                      controller: location,
+                      controller: locationC,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),),
