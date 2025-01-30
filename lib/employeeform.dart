@@ -47,12 +47,12 @@ class _EmployeeformState extends State<Employeeform>{
         if(_editingEmployeeId == null){
           await _appwriteService.addEmployeeDetails(name, age, location);
         }else{
-          await _appwriteService.updateEmployeeDetails(name, age, location,_editingEmployeeId!);
+          await _appwriteService.updateEmployeeDetails(_editingEmployeeId!,name, age, location);
         }
           nameC.clear();
           ageC.clear();
           locationC.clear();
-          _editingEmployeeId == null;
+          _editingEmployeeId = null;
           _loadEmployeeDetails();
       }catch(e){
         print("error adding or Deleting task:$e");
